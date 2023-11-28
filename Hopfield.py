@@ -6,6 +6,7 @@ import random
 import numbers_dict
 
 # GRAPHICS
+
 def create_circle(canvas, x0, y0, x1, y1, fill):
     if fill:
         canvas.create_oval(x0, y0, x1, y1, outline='black', width = 2, fill='black')
