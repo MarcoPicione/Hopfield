@@ -70,12 +70,19 @@ class hopfield(object):
         self.state = np.zeros(size)
         self.state_rounded = np.zeros(size)
         self.collective_variable = []
+
+        self.pattern_weights = []
         
     def add_pattern(self, pattern):
         self.weights = (self.weights + np.outer(pattern, pattern)) * self.learningRate
         self.patterns.append(pattern)
         for i in range(self.size):
             self.weights[i][i] = 0
+
+        self.pattern_weights = []
+        for i in range(1, np.ceil(len(self.patterns) / 2).astype(np.int32) + 1):
+            self.pattern_weights.append(-1*i)
+            self.pattern_weights.append(i)
         
     def activation(self, i):
         return self.act(np.dot(self.weights[i], self.state))
@@ -97,7 +104,11 @@ class hopfield(object):
         return np.linalg.norm(a-b)
 
     def evaluate_collective_variable(self):
-        return -1 *np.exp(-self.distance(self.patterns[0], self.state) / self.alpha) + 1 * np.exp(-self.distance(self.patterns[1], self.state) / self.alpha)
+        sum = 0
+        for i in range(len(self.pattern_weights)):
+            sum = sum + self.pattern_weights[i] * np.exp(-self.distance(self.pattern_weights[i], self.state) / self.alpha)
+        return sum
+        #return -1 *np.exp(-self.distance(self.patterns[0], self.state) / self.alpha) + 1 * np.exp(-self.distance(self.patterns[1], self.state) / self.alpha)
 
 
 # MAIN
@@ -105,7 +116,7 @@ class hopfield(object):
 def main():
 
     n = 9
-    h = hopfield(n, temperature=0.15, dt=1/100)
+    h = hopfield(n, temperature=0.10, dt=1/100)
     d = numbers_dict.d
 
     h.add_pattern(d['one'+str(n)])
